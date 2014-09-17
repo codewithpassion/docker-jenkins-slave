@@ -1,4 +1,5 @@
-FROM debian:wheezy
+#FROM debian:wheezy
+FROM ubuntu:14.04
 
 # SSH
 EXPOSE 22
@@ -28,17 +29,26 @@ RUN sed 's/Defaults *requiretty/#Defaults    requiretty/' -i /etc/sudoers
 RUN echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 RUN apt-get -y install openjdk-6-jre-headless git
+RUN apt-get -y install curl
 
-RUN apt-get install -y dosfstools git-core kpartx u-boot-tools wget parted gcc g++ make qemu qemu-user-static libglib2.0-dev git nodejs npm fakeroot libjpeg-dev cpp-arm-linux-gnueabihf g++-arm-linux-gnueabihf p7zip p7zip-full rubygems
+RUN curl -sL https://deb.nodesource.com/setup | bash -
+RUN apt-get install -y dosfstools git-core kpartx u-boot-tools wget parted gcc g++ make qemu qemu-user-static libglib2.0-dev git fakeroot libjpeg-dev p7zip p7zip-full 
 
-RUN update-alternatives --install -y "/usr/bin/node" "node" "/usr/bin/nodejs" 10
-RUN update-alternatives --install -y "/bin/sh" "sh" "/bin/bash" 10
+RUN apt-get install -y cpp-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+#RUN sudo update-alternatives --install -y "/usr/bin/node" "node" "/usr/bin/nodejs" 10
+#RUN sudo update-alternatives --install -y "/bin/sh" "sh" "/bin/bash" 10
 
 RUN gem install fpm
 
-#RUN su -c 'echo "127.0.0.1 localhost" > /etc/hosts'
+RUN su -c 'echo "172.31.17.115   build.openrov.com" >> /etc/hosts'
+
+RUN mkdir -p /var/lib/jenkins
+RUN mkdir -p /opt/jenkins
+RUN wget http://build.openrov.com:8080/jnlpJars/slave.jar -P /opt/jenkins/
 
 #ENTRYPOINT ["/usr/sbin/sshd"]
 #CMD ["-D"]
-ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/usr/bin/java"]
+#ENTRYPOINT [ "/usr/bin/java", "-jar", "/opt/jenkins/slave.jar", "-jnlpUrl", "http://build.openrov.com/computer/AWS-docker/slave-agent.jnlp", "-secret", "ca3ce38030764947eadb9cc08759af07a35eff312edddc1b795261fe5370f53c" ]
 
